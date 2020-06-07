@@ -6,56 +6,7 @@
 <head lang="ru">
     <meta charset="utf-8"/>
     <title>Meals</title>
-    <style>
-        table, td, th {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-
-        td, th {
-            min-width: 100px;
-            padding: 5px;
-        }
-
-        td button {
-            width: 100%;
-        }
-
-        .excess {
-            color: red;
-        }
-
-        .normal {
-            color: green;
-        }
-
-        .editForm {
-            max-width: 500px;
-        }
-
-        .form-item {
-        }
-
-        .form-item input, label {
-            border-radius: 5px;
-            display: block;
-            width: 100%;
-            margin: 5px;
-            padding: 5px;
-        }
-
-        .form-item label {
-            font-weight: bold;
-        }
-
-        .form-item input[type="submit"], input[type="button"] {
-            width: 103%;
-        }
-
-        hr {
-            margin: 25px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/meals-style.css" />
 </head>
 <body>
 <h1>Meals</h1>

@@ -2,9 +2,9 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.MealsStoreMemory;
+import ru.javawebinar.topjava.store.MealsStoreMemory;
+import ru.javawebinar.topjava.store.StoreInterface;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.util.StoreInterface;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,31 +44,26 @@ public class MealsServlet extends HttpServlet {
                 request.setAttribute("editMeal", mealsStoreMemory.get(id));
             }
         }
-
         request.getRequestDispatcher("meals.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
-
         Meal meal = parseRequestToMeal(request);
         mealsStoreMemory.save(meal);
-
         response.sendRedirect("meals");
     }
 
     private Meal parseRequestToMeal(HttpServletRequest request) {
         Integer id = null;
-        if (request.getParameter("meal_id") != null && !request.getParameter("meal_id").isEmpty())
+        if (request.getParameter("meal_id") != null &&
+                !request.getParameter("meal_id").isEmpty()) {
             id = Integer.valueOf(request.getParameter("meal_id"));
-
+        }
         LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"), dateTimeFormatter);
-
         String description = request.getParameter("description");
-
         Integer calories = Integer.valueOf(request.getParameter("calories"));
-
         return new Meal(id, dateTime, description, calories);
     }
 
