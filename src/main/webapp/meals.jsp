@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
@@ -28,7 +28,7 @@
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
                 <td>
-                    <a href="meals?action=edit&id=${meal.id}">
+                    <a href="meals?action=edit_view&id=${meal.id}">
                         <button>Edit</button>
                     </a>
                 </td>

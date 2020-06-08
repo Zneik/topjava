@@ -54,16 +54,9 @@ public class MealsStoreMemory implements StoreInterface<Integer, Meal> {
     @Override
     public Meal save(Meal value) {
         if (value.getId() == null) {
-            Integer id = counter.getAndIncrement();
-            value.setId(id);
-            meals.put(id, value);
-        } else {
-            if (meals.containsKey(value.getId())) {
-                meals.put(value.getId(), value);
-            } else {
-                return null;
-            }
+            value.setId(counter.getAndIncrement());
         }
+        meals.put(value.getId(), value);
         return value;
     }
 

@@ -25,31 +25,48 @@ public class MealsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("meals",
-                MealsUtil.filteredByStreams(mealsStoreMemory.getAll(),
-                        LocalTime.MIN,
-                        LocalTime.MAX,
-                        MealsUtil.CALORIES_PER_DAY));
-
-        String actionType = request.getParameter("action");
-        if (actionType != null && !actionType.isEmpty()) {
-            Integer id = Integer.valueOf(request.getParameter("id"));
-            if (actionType.equals(Actions.DELETE)) {
-                log.debug(Actions.DELETE);
-                mealsStoreMemory.delete(id);
-                response.sendRedirect("meals");
-                return;
-            } else {
-                log.debug(Actions.EDIT);
-                request.setAttribute("editMeal", mealsStoreMemory.get(id));
+        String action = request.getParameter("action");
+        if (action == null) {
+            request.setAttribute("meals", MealsUtil.filteredByStreams(mealsStoreMemory.getAll(),
+                    LocalTime.MIN,
+                    LocalTime.MAX,
+                    MealsUtil.CALORIES_PER_DAY));
+            log.debug(Actions.VIEW);
+            request.getRequestDispatcher("meals.jsp").forward(request, response);
+        } else {
+            String id = request.getParameter("id");
+            switch (action) {
+                case Actions.EDIT_VIEW:
+                    if (id != null) {
+                        request.setAttribute("meals", MealsUtil.filteredByStreams(mealsStoreMemory.getAll(),
+                                LocalTime.MIN,
+                                LocalTime.MAX,
+                                MealsUtil.CALORIES_PER_DAY));
+                        log.debug(Actions.EDIT_VIEW);
+                        request.setAttribute("editMeal", mealsStoreMemory.get(Integer.valueOf(id)));
+                        request.getRequestDispatcher("meals.jsp").forward(request, response);
+                    } else {
+                        response.sendRedirect("meals");
+                    }
+                    break;
+                case Actions.DELETE:
+                    if (id != null) {
+                        log.debug(Actions.DELETE);
+                        mealsStoreMemory.delete(Integer.valueOf(id));
+                    }
+                    response.sendRedirect("meals");
+                    break;
+                default:
+                    response.sendRedirect("meals");
+                    break;
             }
         }
-        request.getRequestDispatcher("meals.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
+        log.debug(Actions.SAVE);
         Meal meal = parseRequestToMeal(request);
         mealsStoreMemory.save(meal);
         response.sendRedirect("meals");
@@ -68,7 +85,9 @@ public class MealsServlet extends HttpServlet {
     }
 
     public static class Actions {
-        public static final String EDIT = "edit";
+        public static final String SAVE = "save";
+        public static final String EDIT_VIEW = "edit_view";
         public static final String DELETE = "delete";
+        public static final String VIEW = "view";
     }
 }
