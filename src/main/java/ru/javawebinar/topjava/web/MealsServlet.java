@@ -21,7 +21,13 @@ public class MealsServlet extends HttpServlet {
     private static final Logger log = getLogger(MealsServlet.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
-    private final StoreInterface<Integer, Meal> mealsStoreMemory = new MealsStoreMemory();
+    private StoreInterface<Integer, Meal> mealsStoreMemory;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.mealsStoreMemory = new MealsStoreMemory();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -42,8 +48,9 @@ public class MealsServlet extends HttpServlet {
                                 LocalTime.MIN,
                                 LocalTime.MAX,
                                 MealsUtil.CALORIES_PER_DAY));
-                        log.debug(Actions.EDIT_VIEW);
-                        request.setAttribute("editMeal", mealsStoreMemory.get(Integer.valueOf(id)));
+                        final Meal meal = mealsStoreMemory.get(Integer.valueOf(id));
+                        log.debug(String.format("%s - %s", Actions.EDIT_VIEW, meal.toString()));
+                        request.setAttribute("editMeal", meal);
                         request.getRequestDispatcher("meals.jsp").forward(request, response);
                     } else {
                         response.sendRedirect("meals");
@@ -51,7 +58,7 @@ public class MealsServlet extends HttpServlet {
                     break;
                 case Actions.DELETE:
                     if (id != null) {
-                        log.debug(Actions.DELETE);
+                        log.debug(String.format("%s - %s", Actions.DELETE, id.toString()));
                         mealsStoreMemory.delete(Integer.valueOf(id));
                     }
                     response.sendRedirect("meals");
@@ -66,8 +73,8 @@ public class MealsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("utf-8");
-        log.debug(Actions.SAVE);
         Meal meal = parseRequestToMeal(request);
+        log.debug(String.format("%s - %s", Actions.SAVE, meal.toString()));
         mealsStoreMemory.save(meal);
         response.sendRedirect("meals");
     }

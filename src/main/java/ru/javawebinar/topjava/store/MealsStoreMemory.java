@@ -16,32 +16,25 @@ public class MealsStoreMemory implements StoreInterface<Integer, Meal> {
     private final Map<Integer, Meal> meals = new ConcurrentHashMap<>();
 
     public MealsStoreMemory() {
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0),
                 "Завтрак",
                 500));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0),
                 "Обед",
                 1000));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0),
                 "Ужин",
                 500));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0),
                 "Еда на граничное значение",
                 100));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0),
                 "Завтрак",
                 1000));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0),
                 "Обед",
                 500));
-        save(new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0),
+        save(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0),
                 "Ужин",
                 410));
     }
@@ -55,8 +48,10 @@ public class MealsStoreMemory implements StoreInterface<Integer, Meal> {
     public Meal save(Meal value) {
         if (value.getId() == null) {
             value.setId(counter.getAndIncrement());
+            meals.put(value.getId(), value);
+        } else {
+            value = meals.replace(value.getId(), value);
         }
-        meals.put(value.getId(), value);
         return value;
     }
 
