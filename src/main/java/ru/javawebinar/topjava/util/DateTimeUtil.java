@@ -9,15 +9,11 @@ public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public static <T extends Comparable<T>> boolean isBetweenHalfOpen(T lt, T start, T end) {
-//        return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) < 0;
-        boolean result = true;
-        if (start != null && !(lt.compareTo(start) >= 0)) {
-            result = false;
-        }
-        if (end != null && !(lt.compareTo(end) < 0)) {
-            result = false;
-        }
-        return result;
+        return (start == null || lt.compareTo(start) >= 0) && (end == null || lt.compareTo(end) < 0);
+    }
+
+    public static <T extends Comparable<T>> boolean isBetweenInclusive(T lt, T start, T end) {
+        return (start == null || lt.compareTo(start) >= 0) && (end == null || lt.compareTo(end) <= 0);
     }
 
     public static String toString(LocalDateTime ldt) {

@@ -17,8 +17,8 @@ public class Meal extends AbstractBaseEntity {
         this(id, dateTime, description, calories, null);
     }
 
-    public Meal(LocalDateTime dateTime, String description, int calories, Integer userId) {
-        this(null, dateTime, description, calories, userId);
+    public Meal(LocalDateTime dateTime, String description, int calories) {
+        this(null, dateTime, description, calories, null);
     }
 
     public Meal(Integer id, LocalDateTime dateTime, String description, int calories, Integer userId) {

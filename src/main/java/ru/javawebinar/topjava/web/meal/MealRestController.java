@@ -40,15 +40,13 @@ public class MealRestController {
     public Meal create(Meal meal) {
         checkNew(meal);
         log.info("create {}", meal);
-        meal.setUserId(SecurityUtil.authUserId());
-        return service.create(meal);
+        return service.create(meal, SecurityUtil.authUserId());
     }
 
     public void update(Meal meal, int id) {
         assureIdConsistent(meal, id);
-        meal.setUserId(SecurityUtil.authUserId());
         log.info("update {} with id={}", meal, id);
-        service.update(meal);
+        service.update(meal, SecurityUtil.authUserId());
     }
 
     public void delete(int id) {

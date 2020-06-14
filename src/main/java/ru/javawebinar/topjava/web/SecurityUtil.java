@@ -6,7 +6,7 @@ public class SecurityUtil {
     public static final int USER_ONE = 1;
     public static final int USER_TWO = 2;
 
-    public static int userId;
+    private static int userId;
 
     static {
         userId = USER_ONE;
