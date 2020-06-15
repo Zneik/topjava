@@ -10,7 +10,10 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -63,7 +66,7 @@ public class InMemoryMealRepository implements MealRepository {
 
     @Override
     public List<Meal> getAllByDate(int userId, LocalDate start, LocalDate end) {
-        return getWithFilter(userId, meal -> DateTimeUtil.isBetweenInclusive(meal.getDate(), start, end));
+        return getWithFilter(userId, meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDate(), start, end));
     }
 
     private List<Meal> getWithFilter(int userId, Predicate<Meal> filter) {

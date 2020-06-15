@@ -27,5 +27,10 @@ public class DateTimeUtil {
     public static LocalDate parseDate(String date) {
         return date != null && !date.isEmpty() ? LocalDate.parse(date) : null;
     }
+
+    public static LocalDate addDayToDate(LocalDate date) {
+        return date != null ? date.plusDays(1) : null;
+    }
+
 }
 
