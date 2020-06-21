@@ -33,7 +33,7 @@ CREATE TABLE public.meals
     calories    INTEGER   NOT NULL,
     user_id     INTEGER   NOT NULL,
     CONSTRAINT pk_public_meals PRIMARY KEY (id),
-    CONSTRAINT fk_public_meals_public_users FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_public_meals_public_users FOREIGN KEY (user_id) REFERENCES public.users (id) ON DELETE CASCADE
 );
 
-CREATE UNIQUE INDEX idx_public_meals_date_time_user_id ON public.meals (date_time, user_id);
+CREATE UNIQUE INDEX idx_public_meals_user_id_date_time ON public.meals (user_id, date_time);
