@@ -1,7 +1,13 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Stopwatch;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -12,6 +18,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -25,6 +34,24 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final List<String> testsTime = new LinkedList<>();
+
+    @Rule
+    public Stopwatch stopwatch = new Stopwatch() {
+        @Override
+        protected void finished(long nanos, Description description) {
+            String testTime = String.format("%s - %d ms", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            log.info(testTime);
+            testsTime.add(testTime);
+        }
+    };
+
+    @AfterClass
+    public static void printTestsTime() {
+        log.info("All test times:");
+        testsTime.forEach(log::info);
+    }
 
     @Autowired
     private MealService service;
@@ -75,6 +102,7 @@ public class MealServiceTest {
     public void update() throws Exception {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
+        Meal updatedResult = getUpdated();
         MEAL_MATCHER.assertMatch(service.get(MEAL1_ID, USER_ID), getUpdated());
     }
 
