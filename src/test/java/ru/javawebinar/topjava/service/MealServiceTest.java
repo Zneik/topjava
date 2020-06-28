@@ -18,8 +18,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
@@ -34,7 +32,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final Logger log = LoggerFactory.getLogger("testTime");
     private static final StringBuilder testsTime = new StringBuilder();
 
     @Rule
@@ -53,7 +51,7 @@ public class MealServiceTest {
                 "------------------------------------------------\n" +
                 "|Test                      |               Time|\n" +
                 "------------------------------------------------\n" +
-                testsTime.toString() +
+                testsTime +
                 "------------------------------------------------\n");
     }
 
