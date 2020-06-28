@@ -35,22 +35,26 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final List<String> testsTime = new LinkedList<>();
+    private static final StringBuilder testsTime = new StringBuilder();
 
     @Rule
     public Stopwatch stopwatch = new Stopwatch() {
         @Override
         protected void finished(long nanos, Description description) {
-            String testTime = String.format("%s - %d ms", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+            String testTime = String.format("|%-25s | %15d ms|\n", description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
             log.info(testTime);
-            testsTime.add(testTime);
+            testsTime.append(testTime);
         }
     };
 
     @AfterClass
     public static void printTestsTime() {
-        log.info("All test times:");
-        testsTime.forEach(log::info);
+        log.info("\nAll test times:\n" +
+                "------------------------------------------------\n" +
+                "|Test                      |               Time|\n" +
+                "------------------------------------------------\n" +
+                testsTime.toString() +
+                "------------------------------------------------\n");
     }
 
     @Autowired
