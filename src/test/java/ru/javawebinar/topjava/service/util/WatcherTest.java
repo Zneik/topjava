@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.service.util;
 
+import org.junit.rules.ExternalResource;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
@@ -21,11 +22,23 @@ public class WatcherTest {
         }
     };
 
-    public static void resetResult() {
+    public final static ExternalResource EXTERNAL_RESOURCE = new ExternalResource() {
+        @Override
+        protected void before() throws Throwable {
+            resetResult();
+        }
+
+        @Override
+        protected void after() {
+            printResult();
+        }
+    };
+
+    private static void resetResult() {
         results.setLength(0);
     }
 
-    public static void printResult() {
+    private static void printResult() {
         log.info("\n---------------------------------" +
                 "\nTest                 Duration, ms" +
                 "\n---------------------------------" +

@@ -2,7 +2,9 @@ package ru.javawebinar.topjava.service.base;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
+import org.junit.rules.ExternalResource;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,14 +27,7 @@ abstract public class ServiceTest {
     @Rule
     public final Stopwatch stopwatch = WatcherTest.STOPWATCH;
 
-    @BeforeClass
-    public static void before() {
-       WatcherTest.resetResult();
-    }
-
-    @AfterClass
-    public static void after() {
-        WatcherTest.printResult();
-    }
+    @ClassRule
+    public final static ExternalResource externalResource = WatcherTest.EXTERNAL_RESOURCE;
 
 }
