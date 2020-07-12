@@ -4,6 +4,12 @@ package ru.javawebinar.topjava.util;
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
+
 public class ValidationUtil {
     private ValidationUtil() {
     }
@@ -53,4 +59,19 @@ public class ValidationUtil {
         }
         return result;
     }
+
+    private static final Validator beanValidator;
+
+    static {
+        beanValidator = Validation.buildDefaultValidatorFactory()
+                .getValidator();
+    }
+
+    public static <T> void checkBean(T bean) {
+        Set<ConstraintViolation<T>> constraintViolations = beanValidator.validate(bean);
+        if (constraintViolations.size() > 0) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+    }
+
 }
