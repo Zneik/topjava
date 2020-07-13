@@ -3,11 +3,15 @@ package ru.javawebinar.topjava.model;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Range;
+import org.hibernate.validator.group.GroupSequenceProvider;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
 import javax.persistence.*;
+import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.validation.groups.Default;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,29 +25,31 @@ import java.time.LocalTime;
 //                "m.description=:desc where m.id=:id and m.user.id=:userId")
 })
 @Entity
-@Table(name = "meals", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "date_time"}, name = "meals_unique_user_datetime_idx")})
+@Table(name = "meals",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "date_time"},
+                name = "meals_unique_user_datetime_idx")})
 public class Meal extends AbstractBaseEntity {
     public static final String ALL_SORTED = "Meal.getAll";
     public static final String DELETE = "Meal.delete";
     public static final String GET_BETWEEN = "Meal.getBetween";
 
     @Column(name = "date_time", nullable = false)
-    @NotNull
+    @NotNull(groups = {Default.class, ValidationUtil.JdbcValidation.class})
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
-    @NotBlank
-    @Size(min = 2, max = 120)
+    @NotBlank(groups = {Default.class, ValidationUtil.JdbcValidation.class})
+    @Size(min = 2, max = 120, groups = ValidationUtil.JdbcValidation.class)
     private String description;
 
     @Column(name = "calories", nullable = false)
-    @Range(min = 10, max = 5000)
+    @Range(min = 10, max = 5000, groups = {Default.class, ValidationUtil.JdbcValidation.class})
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-//    @NotNull
+    @NotNull(groups = Default.class)
     private User user;
 
     public Meal() {

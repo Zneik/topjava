@@ -9,18 +9,9 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
     <hr>
-    <h2>
-        <c:choose>
-            <c:when test="${meal.id == null}">
-                <localization:message code="mealForm.create"/>
-            </c:when>
-            <c:otherwise>
-                <localization:message code="mealForm.edit"/>
-            </c:otherwise>
-        </c:choose>
-    </h2>
+    <h2><localization:message code="${meal.id == null ? 'mealForm.create' : 'mealForm.edit'}"/></h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post" action="${pageContext.request.contextPath}/meals">
+    <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><localization:message code="mealForm.dateTime"/></dt>

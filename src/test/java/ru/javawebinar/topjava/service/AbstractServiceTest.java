@@ -38,8 +38,6 @@ abstract public class AbstractServiceTest {
     @Rule
     public Stopwatch stopwatch = TimingRules.STOPWATCH;
 
-    @Autowired
-    private Environment environment;
 
     //  Check root cause in JUnit: https://github.com/junit-team/junit4/pull/778
     public <T extends Throwable> void validateRootCause(Runnable runnable, Class<T> rootExceptionClass) {
@@ -52,8 +50,4 @@ abstract public class AbstractServiceTest {
         });
     }
 
-    public boolean isJdbcProfile() {
-        return Arrays.asList(environment.getActiveProfiles())
-                .contains(Profiles.JDBC);
-    }
 }

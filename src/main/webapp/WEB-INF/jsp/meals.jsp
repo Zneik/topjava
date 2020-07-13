@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
-<%@ taglib prefix="spring" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="localization" uri="http://www.springframework.org/tags" %>
 
 <html>
@@ -13,7 +12,7 @@
 <section>
     <hr/>
     <h2><localization:message code="meal.title"/></h2>
-    <form method="get" action="${pageContext.request.contextPath}/meals/filter">
+    <form method="get" action="meals/filter">
         <dl>
             <dt><localization:message code="meal.dateFrom"/></dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
@@ -33,7 +32,7 @@
         <button type="submit"><localization:message code="meal.filter"/></button>
     </form>
     <hr/>
-    <a href="${pageContext.request.contextPath}/meals/create"><localization:message code="meal.add"/></a>
+    <a href="meals/create"><localization:message code="meal.add"/></a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>

@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
@@ -19,12 +21,11 @@ import ru.javawebinar.topjava.util.ValidationUtil;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional(readOnly = true)
 public class JdbcUserRepository implements UserRepository {
-
-    private static final BeanPropertyRowMapper<User> ROW_MAPPER = BeanPropertyRowMapper.newInstance(User.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -56,8 +57,9 @@ public class JdbcUserRepository implements UserRepository {
                         "registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay " +
                         "WHERE id=:id", parameterSource) == 0) {
             return null;
+        } else {
+            deleteRoles(user);
         }
-        deleteRoles(user);
         addRoles(user);
         return user;
     }
@@ -86,9 +88,12 @@ public class JdbcUserRepository implements UserRepository {
 
     @Override
     public List<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM users " +
+        return Objects.requireNonNull(jdbcTemplate.query("SELECT * FROM users " +
                         " LEFT JOIN user_roles ON users.id = user_roles.user_id ORDER BY name, email",
-                new UserExtractor());
+                new UserExtractor()))
+                .stream()
+                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
+                .collect(Collectors.toList());
     }
 
     private void deleteRoles(User user) {
@@ -97,7 +102,7 @@ public class JdbcUserRepository implements UserRepository {
 
     private void addRoles(User user) {
         Set<Role> roles = user.getRoles();
-        if (roles != null && roles.size() > 0) {
+        if (!CollectionUtils.isEmpty(roles)) {
             jdbcTemplate.batchUpdate("INSERT INTO user_roles(user_id, role) VALUES (?,?)",
                     roles,
                     roles.size(),
@@ -108,27 +113,34 @@ public class JdbcUserRepository implements UserRepository {
         }
     }
 
-    public static class UserExtractor implements ResultSetExtractor<List<User>> {
+    private static class UserExtractor implements ResultSetExtractor<List<User>> {
         @Override
         public List<User> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
             Map<Integer, User> users = new HashMap<>();
             while (resultSet.next()) {
                 Integer id = resultSet.getInt("id");
-                User user = null;
-                if (users.containsKey(id)) {
-                    user = users.get(id);
-                } else {
-                    user = new User();
-                    user.setId(id);
-                    user.setName(resultSet.getString("name"));
-                    user.setEmail(resultSet.getString("email"));
-                    user.setCaloriesPerDay(resultSet.getInt("calories_per_day"));
-                    user.setEnabled(resultSet.getBoolean("enabled"));
-                    user.setRegistered(resultSet.getTimestamp("registered"));
-                    user.setPassword(resultSet.getString("password"));
-                    users.put(id, user);
+                User user = users.computeIfAbsent(id, key -> {
+                    User currentUser = new User();
+                    try {
+                        currentUser.setId(id);
+                        currentUser.setName(resultSet.getString("name"));
+                        currentUser.setEmail(resultSet.getString("email"));
+                        currentUser.setCaloriesPerDay(resultSet.getInt("calories_per_day"));
+                        currentUser.setEnabled(resultSet.getBoolean("enabled"));
+                        currentUser.setRegistered(resultSet.getTimestamp("registered"));
+                        currentUser.setPassword(resultSet.getString("password"));
+                    } catch (SQLException exception) {
+                        throw new RuntimeException(exception);
+                    }
+                    return currentUser;
+                });
+                String roleString = resultSet.getString("role");
+                if (!StringUtils.isEmpty(roleString)) {
+                    if (user.getRoles() == null) {
+                        user.setRoles(new HashSet<>());
+                    }
+                    user.getRoles().add(Role.valueOf(roleString));
                 }
-                user.getRoles().add(Role.valueOf(resultSet.getString("role")));
             }
             return new ArrayList<>(users.values());
         }

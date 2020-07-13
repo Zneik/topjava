@@ -11,6 +11,13 @@ import javax.validation.Validator;
 import java.util.Set;
 
 public class ValidationUtil {
+    private static final Validator beanValidator;
+
+    static {
+        beanValidator = Validation.buildDefaultValidatorFactory()
+                .getValidator();
+    }
+
     private ValidationUtil() {
     }
 
@@ -60,18 +67,13 @@ public class ValidationUtil {
         return result;
     }
 
-    private static final Validator beanValidator;
-
-    static {
-        beanValidator = Validation.buildDefaultValidatorFactory()
-                .getValidator();
-    }
-
-    public static <T> void checkBean(T bean) {
-        Set<ConstraintViolation<T>> constraintViolations = beanValidator.validate(bean);
+    public static <T> void checkBean(T bean, Class<?>... groups) {
+        Set<ConstraintViolation<T>> constraintViolations = beanValidator.validate(bean, groups);
         if (constraintViolations.size() > 0) {
             throw new ConstraintViolationException(constraintViolations);
         }
     }
 
+    public interface JdbcValidation {
+    }
 }
