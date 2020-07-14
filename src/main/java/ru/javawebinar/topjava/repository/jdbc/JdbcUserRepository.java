@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.repository.jdbc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -89,7 +88,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         return Objects.requireNonNull(jdbcTemplate.query("SELECT * FROM users " +
-                        " LEFT JOIN user_roles ON users.id = user_roles.user_id ORDER BY name, email",
+                        " LEFT JOIN user_roles ON users.id = user_roles.user_id",
                 new UserExtractor()))
                 .stream()
                 .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))

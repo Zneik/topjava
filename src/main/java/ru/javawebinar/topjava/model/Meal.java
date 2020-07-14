@@ -39,7 +39,7 @@ public class Meal extends AbstractBaseEntity {
 
     @Column(name = "description", nullable = false)
     @NotBlank(groups = {Default.class, ValidationUtil.JdbcValidation.class})
-    @Size(min = 2, max = 120, groups = ValidationUtil.JdbcValidation.class)
+    @Size(min = 2, max = 120, groups = {Default.class, ValidationUtil.JdbcValidation.class})
     private String description;
 
     @Column(name = "calories", nullable = false)
