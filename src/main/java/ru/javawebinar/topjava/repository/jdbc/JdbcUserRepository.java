@@ -88,11 +88,8 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public List<User> getAll() {
         return Objects.requireNonNull(jdbcTemplate.query("SELECT * FROM users " +
-                        " LEFT JOIN user_roles ON users.id = user_roles.user_id",
-                new UserExtractor()))
-                .stream()
-                .sorted(Comparator.comparing(User::getName).thenComparing(User::getEmail))
-                .collect(Collectors.toList());
+                        " LEFT JOIN user_roles ON users.id = user_roles.user_id ORDER BY name, email",
+                new UserExtractor()));
     }
 
     private void deleteRoles(User user) {
@@ -115,10 +112,11 @@ public class JdbcUserRepository implements UserRepository {
     private static class UserExtractor implements ResultSetExtractor<List<User>> {
         @Override
         public List<User> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-            Map<Integer, User> users = new HashMap<>();
+            Map<Integer, User> usersMap = new HashMap<>();
+            List<User> usersList = new ArrayList<>();
             while (resultSet.next()) {
                 Integer id = resultSet.getInt("id");
-                User user = users.computeIfAbsent(id, key -> {
+                User user = usersMap.computeIfAbsent(id, key -> {
                     User currentUser = new User();
                     try {
                         currentUser.setId(id);
@@ -131,6 +129,7 @@ public class JdbcUserRepository implements UserRepository {
                     } catch (SQLException exception) {
                         throw new RuntimeException(exception);
                     }
+                    usersList.add(currentUser);
                     return currentUser;
                 });
                 String roleString = resultSet.getString("role");
@@ -141,7 +140,7 @@ public class JdbcUserRepository implements UserRepository {
                     user.getRoles().add(Role.valueOf(roleString));
                 }
             }
-            return new ArrayList<>(users.values());
+            return usersList;
         }
     }
 }
