@@ -20,7 +20,6 @@ import ru.javawebinar.topjava.util.ValidationUtil;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @Transactional(readOnly = true)
