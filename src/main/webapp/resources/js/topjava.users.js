@@ -1,4 +1,16 @@
 // $(document).ready(function () {
+function setEnabled(checkbox, userId) {
+    let enabled = checkbox.is(":checked")
+    $.ajax({
+        url: 'admin/users/' + userId + '/enable',
+        type: 'POST',
+        data: 'enabled=' + enabled
+    }).done(function () {
+        checkbox.closest('tr')
+            .attr('data-userEnabled', enabled);
+    });
+}
+
 $(function () {
     makeEditable({
             ajaxUrl: "admin/users/",

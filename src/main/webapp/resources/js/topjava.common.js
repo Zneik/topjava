@@ -38,6 +38,10 @@ function updateTable() {
     });
 }
 
+function updateTableData(data) {
+    context.datatableApi.clear().rows.add(data).draw();
+}
+
 function save() {
     $.ajax({
         type: "POST",
@@ -45,7 +49,7 @@ function save() {
         data: form.serialize()
     }).done(function () {
         $("#editRow").modal("hide");
-        updateTable();
+        context.updateTable();
         successNoty("Saved");
     });
 }
