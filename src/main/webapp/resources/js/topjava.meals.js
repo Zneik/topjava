@@ -37,9 +37,9 @@ $(function () {
                         0,
                         "desc"
                     ]
-                ],
-                updateTable: updateTableFilter
-            })
+                ]
+            }),
+            updateTable: updateTableFilter
         }
     );
 });

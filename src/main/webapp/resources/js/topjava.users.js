@@ -1,5 +1,5 @@
 // $(document).ready(function () {
-function setEnabled(checkbox, userId) {
+function enable(checkbox, userId) {
     let enabled = checkbox.is(":checked")
     $.ajax({
         url: 'admin/users/' + userId + '/enable',
@@ -8,7 +8,14 @@ function setEnabled(checkbox, userId) {
     }).done(function () {
         checkbox.closest('tr')
             .attr('data-userEnabled', enabled);
+        successNoty(enabled ? "Enabled" : "Disabled");
+    }).fail(function () {
+        $(checkbox).prop("checked", !enabled);
     });
+}
+
+function updateTableUsers() {
+    $.get("admin/users/", updateTableData);
 }
 
 $(function () {
@@ -48,7 +55,8 @@ $(function () {
                         "asc"
                     ]
                 ]
-            })
+            }),
+            updateTable: updateTableUsers
         }
     );
 });

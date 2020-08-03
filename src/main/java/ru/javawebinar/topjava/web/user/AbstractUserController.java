@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.util.List;
 
@@ -50,12 +51,13 @@ public abstract class AbstractUserController {
         return service.getByEmail(email);
     }
 
-    public void enable(Integer id, boolean enabled) {
-        log.info("enabled {}", enabled);
+    public void enable(int id, boolean enabled) {
+        log.info("user {} enabled {}", SecurityUtil.authUserId(), enabled);
         service.enable(id, enabled);
     }
 
-    public User getWithMeals(Integer id) {
+    public User getWithMeals(int id) {
+        log.info("user {} with-meals", SecurityUtil.authUserId());
         return service.getWithMeals(id);
     }
 }

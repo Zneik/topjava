@@ -11,7 +11,7 @@ import java.util.List;
 import static ru.javawebinar.topjava.web.user.AdminUIController.BASE_URL;
 
 @RestController
-@RequestMapping(value = BASE_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = BASE_URL)
 public class AdminUIController extends AbstractUserController {
     public static final String BASE_URL = "/admin/users";
 
@@ -43,7 +43,7 @@ public class AdminUIController extends AbstractUserController {
 
     @PostMapping("/{id}/enable")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void enable(@PathVariable Integer id, @RequestParam Boolean enabled) {
+    public void enable(@PathVariable int id, @RequestParam Boolean enabled) {
         super.enable(id, enabled);
     }
 

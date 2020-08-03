@@ -15,10 +15,6 @@ dd {
     vertical-align: top;
 }
 
-tr[data-mealExcess="false"] {
-    color: green;
-}
-
 tr[data-userEnabled="false"] {
     color: red;
 }
@@ -29,6 +25,10 @@ tr[data-userEnabled="true"] {
 
 tr[data-mealExcess="true"] {
     color: red;
+}
+
+tr[data-mealExcess="false"] {
+    color: green;
 }
 
 .fa {
