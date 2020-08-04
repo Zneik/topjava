@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,8 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import ru.javawebinar.topjava.AllActiveProfileResolver;
+import ru.javawebinar.topjava.Profiles;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 
 @SpringJUnitWebConfig(locations = {
         "classpath:spring/spring-app.xml",
@@ -24,6 +27,8 @@ import javax.annotation.PostConstruct;
 @Transactional
 @ActiveProfiles(resolver = AllActiveProfileResolver.class)
 abstract public class AbstractControllerTest {
+    @Autowired
+    private Environment environment;
 
     private static final CharacterEncodingFilter CHARACTER_ENCODING_FILTER = new CharacterEncodingFilter();
 
@@ -36,6 +41,10 @@ abstract public class AbstractControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    protected boolean isDataJPA() {
+        return Arrays.asList(environment.getActiveProfiles()).contains(Profiles.DATAJPA);
+    }
 
     @PostConstruct
     private void postConstruct() {
