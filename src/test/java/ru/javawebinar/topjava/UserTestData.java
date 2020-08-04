@@ -5,7 +5,6 @@ import ru.javawebinar.topjava.model.User;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
@@ -33,13 +32,7 @@ public class UserTestData {
 
     public static User getWithMeals() {
         User user = new User(USER);
-        user.setMeals(List.of(MealTestData.MEAL7,
-                MealTestData.MEAL6,
-                MealTestData.MEAL5,
-                MealTestData.MEAL4,
-                MealTestData.MEAL3,
-                MealTestData.MEAL2,
-                MealTestData.MEAL1));
+        user.setMeals(MealTestData.MEALS);
         return user;
     }
 }

@@ -52,12 +52,12 @@ public abstract class AbstractUserController {
     }
 
     public void enable(int id, boolean enabled) {
-        log.info("user {} enabled {}", SecurityUtil.authUserId(), enabled);
+        log.info("user {} enabled {}", id, enabled);
         service.enable(id, enabled);
     }
 
     public User getWithMeals(int id) {
-        log.info("user {} with-meals", SecurityUtil.authUserId());
+        log.info("user {} with-meals", id);
         return service.getWithMeals(id);
     }
 }
