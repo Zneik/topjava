@@ -21,7 +21,7 @@ public class AdminUIControllerTest extends AbstractControllerTest {
 
     @Test
     public void enable() throws Exception {
-        perform(MockMvcRequestBuilders.post(REST_URL + USER_ID + "/enable")
+        perform(MockMvcRequestBuilders.post(REST_URL + USER_ID)
                 .param("enabled", "false")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
