@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.web;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -23,7 +22,7 @@ public class RootController {
     }
 
     @GetMapping("/meals")
-    public String getMeals(Model model) {
+    public String getMeals() {
         return "meals";
     }
 }
