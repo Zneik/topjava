@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.UserTestData;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
-import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -93,7 +95,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
+                .content(UserTestData.jsonWithPassword(updated, "password")))
                 .andExpect(status().isNoContent());
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), updated);
@@ -145,5 +147,37 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_WITH_MEALS_MATCHER.contentJson(ADMIN));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateEmailDuplicate() throws Exception {
+        User user = getUpdated();
+        user.setEmail(ADMIN.getEmail());
+        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(jsonWithPassword(user, "password")))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createEmailDuplicate() throws Exception {
+        User user = new User(USER);
+        user.setId(null);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(jsonWithPassword(user, user.getPassword())))
+                .andExpect(status().isConflict())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+
     }
 }

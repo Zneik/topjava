@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
@@ -20,8 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
-import static ru.javawebinar.topjava.UserTestData.USER;
-import static ru.javawebinar.topjava.UserTestData.USER_ID;
+import static ru.javawebinar.topjava.UserTestData.*;
 import static ru.javawebinar.topjava.util.MealsUtil.createTo;
 import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 
@@ -125,4 +127,63 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MEAL_TO_MATCHER.contentJson(getTos(MEALS, USER.getCaloriesPerDay())));
     }
+
+    @Test
+    void createNotValid() throws Exception {
+        Meal invalid = new Meal(null, null, "", 1000);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(ADMIN)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+    }
+
+    @Test
+    void updateNotValid() throws Exception {
+        Meal invalid = new Meal(MEAL1_ID, null, "", 1000);
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(invalid))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateDateTimeDuplicate() throws Exception {
+        Meal meal = new Meal(MEAL1_ID, MEAL2.getDateTime(), "Test", 1000);
+        perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(meal))
+                .with(userHttpBasic(USER)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createDateTimeDuplicate() throws Exception {
+        Meal meal = new Meal(null, ADMIN_MEAL1.getDateTime(), "Test", 1000);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(meal))
+                .with(userHttpBasic(ADMIN)))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(mvcResult -> mvcResult.getResponse()
+                        .getContentAsString()
+                        .contains(ErrorType.VALIDATION_ERROR.name()));
+    }
+
 }
