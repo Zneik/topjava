@@ -137,9 +137,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(ADMIN)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR));
     }
 
     @Test
@@ -151,9 +149,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(USER)))
                 .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR));
     }
 
     @Test
@@ -166,9 +162,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(USER)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR))
+                .andExpect(errorMessage("meal.dateTime.duplicate"));
     }
 
     @Test
@@ -181,9 +176,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(ADMIN)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR))
+                .andExpect(errorMessage("meal.dateTime.duplicate"));
     }
 
 }

@@ -8,11 +8,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.UserTestData;
+import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
+import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 
 class AdminRestControllerTest extends AbstractControllerTest {
 
@@ -160,9 +163,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .content(jsonWithPassword(user, "password")))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR))
+                .andExpect(errorMessage("user.email.duplicate"));
     }
 
     @Test
@@ -175,9 +177,35 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(ADMIN))
                 .content(jsonWithPassword(user, user.getPassword())))
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR))
+                .andExpect(errorMessage("user.email.duplicate"));
 
+    }
+
+    @Test
+    void createNotValid() throws Exception {
+        User user = new User(null, null, "", "", 10000, Role.USER);
+        perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(JsonUtil.writeValue(user)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(errorType(VALIDATION_ERROR));
+    }
+
+    @Test
+    void updateNotValid() throws Exception {
+        User user = new User(USER);
+        user.setName("");
+        user.setEmail("");
+        user.setCaloriesPerDay(10000);
+        perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(ADMIN))
+                .content(JsonUtil.writeValue(user)))
+                .andExpect(status().isUnprocessableEntity())
+                .andDo(print())
+                .andExpect(errorType(VALIDATION_ERROR));
     }
 }

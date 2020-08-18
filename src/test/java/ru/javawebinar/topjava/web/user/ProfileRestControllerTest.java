@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
 
 class ProfileRestControllerTest extends AbstractControllerTest {
@@ -95,14 +96,24 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     void updateEmailDuplicate() throws Exception {
         UserTo userTo = new UserTo(null, "Test", "admin@gmail.com", "testtest", 1000);
-
         perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(USER))
                 .content(JsonUtil.writeValue(userTo)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> mvcResult.getResponse()
-                        .getContentAsString()
-                        .contains(ErrorType.VALIDATION_ERROR.name()));
+                .andExpect(errorType(ErrorType.VALIDATION_ERROR))
+                .andExpect(errorMessage("user.email.duplicate"));
+    }
+
+    @Test
+    void updateNotValid() throws Exception {
+        UserTo userTo = new UserTo(null, null, "test", null, 1000);
+        perform(MockMvcRequestBuilders.put(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(userHttpBasic(USER))
+                .content(JsonUtil.writeValue(userTo)))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(errorType(VALIDATION_ERROR));
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -26,7 +25,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -64,7 +62,7 @@ public class ExceptionInfoHandler {
                             e,
                             true,
                             VALIDATION_ERROR,
-                            messageSource.getMessage(item.getValue(), null, LocaleContextHolder.getLocale()));
+                            new String[]{messageSource.getMessage(item.getValue(), null, LocaleContextHolder.getLocale())});
                 }
             }
         }
@@ -80,9 +78,9 @@ public class ExceptionInfoHandler {
         } else {
             bindingResult = ((MethodArgumentNotValidException) exception).getBindingResult();
         }
-        String details = bindingResult.getFieldErrors().stream()
+        String[] details = bindingResult.getFieldErrors().stream()
                 .map(fieldError -> String.format("[%s] - %s", fieldError.getField(), fieldError.getDefaultMessage()))
-                .collect(Collectors.joining("<br>"));
+                .toArray(String[]::new);
         return logAndGetErrorInfo(request, exception, true, VALIDATION_ERROR, details);
     }
 
@@ -107,15 +105,21 @@ public class ExceptionInfoHandler {
                                                 Exception e,
                                                 boolean logException,
                                                 ErrorType errorType,
-                                                String details) {
+                                                String[] details) {
         Throwable rootCause = ValidationUtil.getRootCause(e);
         if (logException) {
             log.error(errorType + " at request " + req.getRequestURL(), rootCause);
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, StringUtils.isEmpty(details) ?
-                rootCause.toString() :
+        return new ErrorInfo(req.getRequestURL(), errorType, details == null ?
+                new String[]{getLocaleMessage(rootCause)} :
                 details);
+    }
+
+    private static String getLocaleMessage(Throwable throwable) {
+        return throwable.getLocalizedMessage() != null ?
+                throwable.getLocalizedMessage() :
+                throwable.getClass().getName();
     }
 }
